@@ -17,7 +17,7 @@
         "seed": 42,
         "weight_dtype": "float16"
       },
-      "timeout": 600000
+      "timeout": 1800000
     }
   ],
   "config": {

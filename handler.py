@@ -19,6 +19,7 @@ from transformers import (
     CLIPTextModelWithProjection,
     CLIPTextModel,
 )
+from huggingface_hub import snapshot_download
 
 # Add src to path so we can import the pipeline without ComfyUI
 SRC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
@@ -28,14 +29,30 @@ from idm_vton.unet_hacked_tryon import UNet2DConditionModel
 from idm_vton.unet_hacked_garmnet import UNet2DConditionModel as UNet2DConditionModel_ref
 from idm_vton.tryon_pipeline import StableDiffusionXLInpaintPipeline as TryonPipeline
 
-# ── Model path ──────────────────────────────────────────────────────────────
-# On RunPod, mount your Network Volume at /runpod-volume and set this env var,
-# or pre-bake the weights into the image at /weights/IDM-VTON.
+# ── Config ───────────────────────────────────────────────────────────────────
 WEIGHTS_PATH = os.environ.get("IDM_VTON_WEIGHTS_PATH", "/runpod-volume/IDM-VTON")
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+HF_REPO_ID   = "yisol/IDM-VTON"
+DEVICE       = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ── Global pipeline (loaded once at cold start) ──────────────────────────────
+# ── Global pipeline (lazy-loaded on first request) ───────────────────────────
 PIPELINE = None
+
+
+def ensure_weights():
+    """Download weights from HuggingFace if not already present."""
+    scheduler_dir = os.path.join(WEIGHTS_PATH, "scheduler")
+    if not os.path.isdir(scheduler_dir):
+        print(f"[IDM-VTON] Weights not found at {WEIGHTS_PATH}. Downloading from HuggingFace...")
+        os.makedirs(WEIGHTS_PATH, exist_ok=True)
+        snapshot_download(
+            repo_id=HF_REPO_ID,
+            local_dir=WEIGHTS_PATH,
+            local_dir_use_symlinks=False,
+            token=os.environ.get("HF_TOKEN"),
+        )
+        print("[IDM-VTON] Download complete.")
+    else:
+        print(f"[IDM-VTON] Weights found at {WEIGHTS_PATH}.")
 
 
 def load_pipeline(weight_dtype_str: str = "float16"):
@@ -46,7 +63,8 @@ def load_pipeline(weight_dtype_str: str = "float16"):
     }
     weight_dtype = dtype_map.get(weight_dtype_str, torch.float16)
 
-    print(f"[IDM-VTON] Loading pipeline from {WEIGHTS_PATH} ...")
+    ensure_weights()
+    print(f"[IDM-VTON] Loading pipeline ({weight_dtype_str}) ...")
 
     noise_scheduler = DDPMScheduler.from_pretrained(WEIGHTS_PATH, subfolder="scheduler")
 
@@ -94,7 +112,7 @@ def load_pipeline(weight_dtype_str: str = "float16"):
     pipe = pipe.to(DEVICE)
     pipe.weight_dtype = weight_dtype
 
-    print("[IDM-VTON] Pipeline loaded.")
+    print("[IDM-VTON] Pipeline ready.")
     return pipe
 
 
@@ -110,8 +128,8 @@ def encode_image(img: Image.Image) -> str:
 
 
 def run_inference(pipe, job_input: dict) -> dict:
-    width  = int(job_input.get("width", 768))
-    height = int(job_input.get("height", 1024))
+    width               = int(job_input.get("width", 768))
+    height              = int(job_input.get("height", 1024))
     num_inference_steps = int(job_input.get("num_inference_steps", 30))
     guidance_scale      = float(job_input.get("guidance_scale", 2.0))
     strength            = float(job_input.get("strength", 1.0))
@@ -184,7 +202,6 @@ def handler(job):
 
     job_input = job.get("input", {})
 
-    # Validate required fields
     required = ["human_img", "garment_img", "pose_img", "mask_img", "garment_description"]
     missing = [k for k in required if k not in job_input]
     if missing:
@@ -192,18 +209,14 @@ def handler(job):
 
     try:
         if PIPELINE is None:
-            weight_dtype = job_input.get("weight_dtype", "float16")
+            weight_dtype = job_input.get("weight_dtype", os.environ.get("WEIGHT_DTYPE", "float16"))
             PIPELINE = load_pipeline(weight_dtype)
 
-        result = run_inference(PIPELINE, job_input)
-        return result
+        return run_inference(PIPELINE, job_input)
 
     except Exception as e:
         import traceback
         return {"error": str(e), "traceback": traceback.format_exc()}
 
-
-# Load pipeline at container startup so the first request doesn't cold-start
-PIPELINE = load_pipeline(os.environ.get("WEIGHT_DTYPE", "float16"))
 
 runpod.serverless.start({"handler": handler})
