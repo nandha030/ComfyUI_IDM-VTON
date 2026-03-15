@@ -1,0 +1,47 @@
+{
+  "tests": [
+    {
+      "name": "basic_tryon_inference",
+      "input": {
+        "human_img":   "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGM4sWUBVsQwtCQAydSHATA1Jj4AAAAASUVORK5CYII=",
+        "garment_img": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR4nGNIqTiBFTEMLQkA7iBpARRSRRsAAAAASUVORK5CYII=",
+        "pose_img":    "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAD0lEQVR4nGMwwgEYhpYEAKeaJYFOqQ3UAAAAAElFTkSuQmCC",
+        "mask_img":    "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAD0lEQVR4nGP4jwMwDC0JALoev0Ewkwr8AAAAAElFTkSuQmCC",
+        "garment_description": "plain white t-shirt",
+        "negative_prompt": "monochrome, lowres, bad anatomy, worst quality, low quality",
+        "width": 768,
+        "height": 1024,
+        "num_inference_steps": 30,
+        "guidance_scale": 2.0,
+        "strength": 1.0,
+        "seed": 42,
+        "weight_dtype": "float16"
+      },
+      "timeout": 600000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "env": [
+      {
+        "key": "IDM_VTON_WEIGHTS_PATH",
+        "value": "/runpod-volume/IDM-VTON"
+      },
+      {
+        "key": "WEIGHT_DTYPE",
+        "value": "float16"
+      }
+    ],
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1",
+      "12.0"
+    ]
+  }
+}

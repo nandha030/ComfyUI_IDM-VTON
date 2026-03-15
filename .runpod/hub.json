@@ -1,0 +1,45 @@
+{
+  "title": "IDM-VTON Virtual Try-On",
+  "description": "Serverless virtual try-on using IDM-VTON. Send a human image, garment image, pose image, and mask — get a photorealistic try-on result back. Requires a GPU with 16GB+ VRAM.",
+  "type": "serverless",
+  "category": "image",
+  "iconUrl": "https://raw.githubusercontent.com/nandha030/ComfyUI_IDM-VTON/main/workflow.png",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 20,
+    "presets": [
+      {
+        "name": "Float16 (recommended)",
+        "defaults": {
+          "WEIGHT_DTYPE": "float16"
+        }
+      },
+      {
+        "name": "Float32 (higher quality)",
+        "defaults": {
+          "WEIGHT_DTYPE": "float32"
+        }
+      }
+    ],
+    "env": [
+      {
+        "key": "IDM_VTON_WEIGHTS_PATH",
+        "input": {
+          "name": "Weights Path",
+          "type": "string",
+          "description": "Path to the IDM-VTON model weights on the network volume.",
+          "default": "/runpod-volume/IDM-VTON"
+        }
+      },
+      {
+        "key": "WEIGHT_DTYPE",
+        "input": {
+          "name": "Weight dtype",
+          "type": "string",
+          "description": "Model precision: float16 (faster, less VRAM) or float32 (higher quality).",
+          "default": "float16"
+        }
+      }
+    ]
+  }
+}

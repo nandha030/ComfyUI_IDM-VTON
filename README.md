@@ -1,6 +1,8 @@
 # ComfyUI-IDM-VTON
 ComfyUI adaptation of [IDM-VTON](https://github.com/yisol/IDM-VTON).
 
+[![Runpod](https://api.runpod.io/badge/nandha030/ComfyUI_IDM-VTON)](https://console.runpod.io/hub/nandha030/ComfyUI_IDM-VTON)
+
 ![workflow](workflow.png)
 
 ## Installation
