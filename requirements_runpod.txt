@@ -1,0 +1,28 @@
+# RunPod-specific requirements (pinned for reproducibility)
+# Base image already provides: torch 2.2.0, torchvision, torchaudio, CUDA 12.1
+
+runpod>=1.6.0
+
+# Core ML deps (must match CUDA 12.1 + torch 2.2.0)
+torch==2.2.0
+torchvision==0.17.0
+torchaudio==2.2.0
+
+# HuggingFace ecosystem
+accelerate==0.30.0
+transformers==4.40.2
+diffusers==0.27.2
+huggingface_hub>=0.22.0
+
+# Model utilities
+einops==0.8.0
+bitsandbytes==0.43.0
+scipy==1.13.0
+torchmetrics==1.4.0
+
+# Image processing
+Pillow>=10.0.0
+opencv-python-headless
+
+# Misc
+tqdm==4.66.4
