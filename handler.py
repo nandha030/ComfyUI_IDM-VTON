@@ -203,7 +203,7 @@ def handler(job):
         return {"error": str(e), "traceback": traceback.format_exc()}
 
 
-# Load pipeline at startup (warm container) rather than on first request
-if __name__ == "__main__":
-    PIPELINE = load_pipeline(os.environ.get("WEIGHT_DTYPE", "float16"))
-    runpod.serverless.start({"handler": handler})
+# Load pipeline at container startup so the first request doesn't cold-start
+PIPELINE = load_pipeline(os.environ.get("WEIGHT_DTYPE", "float16"))
+
+runpod.serverless.start({"handler": handler})
