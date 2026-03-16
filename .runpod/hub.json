@@ -6,7 +6,7 @@
   "iconUrl": "https://raw.githubusercontent.com/nandha030/ComfyUI_IDM-VTON/main/workflow.png",
   "config": {
     "runsOn": "GPU",
-    "containerDiskInGb": 20,
+    "containerDiskInGb": 50,
     "presets": [
       {
         "name": "Float16 (recommended)",
