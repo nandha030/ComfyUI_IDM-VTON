@@ -13,20 +13,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ── Python dependencies (torch/torchvision/torchaudio already in base image) ─
-COPY requirements_runpod.txt .
 RUN pip install --no-cache-dir \
-        runpod>=1.6.0 \
-        accelerate==0.30.0 \
-        transformers==4.40.2 \
-        diffusers==0.27.2 \
-        huggingface_hub>=0.22.0 \
-        einops==0.8.0 \
-        bitsandbytes==0.43.0 \
-        scipy==1.13.0 \
-        torchmetrics==1.4.0 \
-        tqdm==4.66.4 \
-        Pillow>=10.0.0 \
-        opencv-python-headless
+        "runpod>=1.6.0" \
+        "accelerate==0.30.0" \
+        "transformers==4.40.2" \
+        "diffusers==0.27.2" \
+        "huggingface_hub>=0.22.0" \
+        "einops==0.8.0" \
+        "scipy==1.13.0" \
+        "tqdm==4.66.4" \
+        "Pillow>=10.0.0" \
+        "opencv-python-headless"
 
 # ── Copy project ──────────────────────────────────────────────────────────────
 COPY . .
